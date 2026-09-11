@@ -1,6 +1,6 @@
 # sms-cli
 
-Version 0.2.0 — carrier-aware credit querying is now available. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+Version 0.3.0 — local MCP access and incoming-SMS desktop notifications are now available. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 A practical command-line SMS client for [ModemManager](https://modemmanager.org/).
 

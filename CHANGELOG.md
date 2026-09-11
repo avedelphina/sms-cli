@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-11
+
+### Added
+
+- Local stdio MCP server (`smscp`) for any MCP-capable client, with read-only modem/message/package tools and explicit prepare → confirm workflows for SMS and carrier package dispatch.
+- Payload-bound, expiring, one-time confirmation tokens backed by owner-only local state; dispatch results are explicitly not delivery or activation confirmation.
+- Controlled ModemManager SMS listing, reading, and sending adapter operations; unknown message states are no longer misrepresented as sent.
+- Signal-driven `sms-watch` command using ModemManager system D-Bus, with a no-subscription `--dry-run` mode.
+- Owner-only, restart-safe incoming-SMS persistence and bounded local desktop notifications. The watcher does not poll, forward message content, send SMS, query USSD, or activate packages.
+- `dbus-next` runtime dependency and fresh-wheel coverage for both MCP and watcher commands.
+
 ## [0.2.0] - 2026-09-11
 
 ### Added
@@ -31,6 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - One-time, payload-bound, expiring confirmation tokens for future MCP and TUI actions.
 - Automated unit tests that run without a modem.
 
-[Unreleased]: https://github.com/avedelphina/sms-cli/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/avedelphina/sms-cli/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/avedelphina/sms-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/avedelphina/sms-cli/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/avedelphina/sms-cli/releases/tag/v0.1.0
