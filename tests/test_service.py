@@ -25,6 +25,9 @@ class FakeModemAdapter:
     def list_messages(self):
         return self.messages
 
+    def initiate_ussd(self, code):
+        return f"USSD response for {code}"
+
     def send_message(self, number, text):
         self.sent.append((number, text))
         return Message(
@@ -53,6 +56,12 @@ class SmsServiceTests(unittest.TestCase):
 
         self.assertEqual(messages[0].text, "Carrier reply")
         self.assertEqual(self.store.list_messages(), messages)
+
+    def test_credit_query_uses_ussd_without_sending_an_sms(self):
+        result = self.service.query_credit("*101#")
+
+        self.assertEqual(result, "USSD response for *101#")
+        self.assertEqual(self.adapter.sent, [])
 
     def test_send_records_the_message_returned_by_adapter(self):
         sent = self.service.send_message("+420987654321", "ETA 18:30")

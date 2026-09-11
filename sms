@@ -33,7 +33,7 @@ Usage:
   sms send-template <name> [number] [template_args...]
   sms templates
   sms contacts
-  sms credit-status
+  sms credit-status [--dry-run]
 
 Config file:
   $CONFIG_FILE
@@ -283,6 +283,11 @@ send_template() {
 credit_status() {
   case "$CREDIT_METHOD" in
     ussd)
+      if [[ "${SMS_DRY_RUN:-0}" == "1" ]]; then
+        printf 'DRY RUN: would initiate USSD on modem %s\n' "$MODEM_ID"
+        printf 'USSD: %s\n' "$CREDIT_USSD"
+        return 0
+      fi
       ensure_modem_id
       mmcli -m "$MODEM_ID" --3gpp-ussd-initiate="$CREDIT_USSD"
       ;;
@@ -338,7 +343,14 @@ main() {
       send_template "$2" "${@:3}"
       ;;
     credit-status)
-      credit_status
+      if [[ $# -eq 1 ]]; then
+        credit_status
+      elif [[ $# -eq 2 && "$2" == "--dry-run" ]]; then
+        SMS_DRY_RUN=1 credit_status
+      else
+        echo "Usage: sms credit-status [--dry-run]" >&2
+        exit 1
+      fi
       ;;
     help|-h|--help|"")
       usage

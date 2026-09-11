@@ -16,6 +16,7 @@ class SmsCommand:
     text: str
     observed_at: date
     source_url: str
+    alternative_ussd: str | None = None
 
     def is_stale(self, on: date | None = None) -> bool:
         return _observation_is_stale(self.observed_at, on)
@@ -70,6 +71,12 @@ class CarrierProfile:
 
     def credit_query(self) -> SmsCommand:
         return self.commands["credit"]
+
+    def credit_ussd(self) -> str:
+        code = self.commands["credit"].alternative_ussd
+        if code is None:
+            raise ValueError("carrier profile does not define a credit USSD code")
+        return code
 
     def package(self, package_id: str) -> Package:
         for package in self.packages:
@@ -151,6 +158,7 @@ def _load_command(raw: dict[str, object], context: str) -> SmsCommand:
         text=_required_text(raw, "text"),
         observed_at=observed_at,
         source_url=_required_text(raw, "source_url"),
+        alternative_ussd=_optional_text(raw, "alternative_ussd"),
     )
 
 
@@ -225,6 +233,15 @@ def _required_text(raw: dict[str, object], field: str) -> str:
     value = raw.get(field)
     if not isinstance(value, str) or not value:
         raise ValueError(f"{field} must be a non-empty string")
+    return value
+
+
+def _optional_text(raw: dict[str, object], field: str) -> str | None:
+    value = raw.get(field)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{field} must be a non-empty string or null")
     return value
 
 
