@@ -1,6 +1,6 @@
 # sms-cli
 
-Version 0.1.0 — an early but tested baseline. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+Version 0.2.0 — carrier-aware credit querying is now available. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 A practical command-line SMS client for [ModemManager](https://modemmanager.org/).
 
