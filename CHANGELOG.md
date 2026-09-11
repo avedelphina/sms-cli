@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-11
+
+### Added
+
+- Bundled, validated T-Mobile Czech Republic Twist carrier profile, including dated package metadata and command safety gates.
+- `sms-credit` command for the profile's `*101#` USSD credit query, with a no-modem-action `--dry-run` preview.
+- Narrow ModemManager adapter for validated USSD requests and a shared service-level credit-query method.
+- Test dependency extra (`.[test]`) for repeatable fresh-wheel verification.
+
+### Changed
+
+- `sms credit-status --dry-run` is now explicit and safe for both SMS and USSD configuration modes; unknown options fail before contacting ModemManager.
+- Packaged and source Bash commands are tested for identical credit-query safeguards.
+
 ## [0.1.0] - 2026-09-11
 
 ### Added
@@ -17,5 +31,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - One-time, payload-bound, expiring confirmation tokens for future MCP and TUI actions.
 - Automated unit tests that run without a modem.
 
-[Unreleased]: https://github.com/avedelphina/sms-cli/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/avedelphina/sms-cli/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/avedelphina/sms-cli/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/avedelphina/sms-cli/releases/tag/v0.1.0
