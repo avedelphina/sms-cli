@@ -10,7 +10,9 @@ from .models import Message, MessageDirection
 _MODEM_ID = re.compile(r"^[0-9]+$")
 _USSD_CODE = re.compile(r"^[*#0-9]+$")
 _SMS_PATH = re.compile(r"/org/freedesktop/ModemManager1/SMS/[0-9]+")
-_DETAIL_FIELD = re.compile(r"^\s*([a-z-]+):\s*'?(.+?)'?\s*$", re.IGNORECASE)
+_DETAIL_FIELD = re.compile(
+    r"^\s*(?:[A-Za-z ]+\|\s*)?([a-z-]+):\s*'?(.+?)'?\s*$", re.IGNORECASE
+)
 
 
 class ModemManagerAdapter:
@@ -99,7 +101,7 @@ def _parse_message(path: str, details: str) -> Message:
         modem_path=path,
         direction=direction,
         number=fields.get("number", ""),
-        text=fields.get("content", ""),
+        text=fields.get("text", fields.get("content", "")),
         timestamp=None,
         state=state,
     )

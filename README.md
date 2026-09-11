@@ -55,6 +55,19 @@ Starting the watcher is intentionally a separate, long-running local operation:
 sms-watch --modem <modem-id>
 ```
 
+
+## Textual TUI
+
+`sms-tui` is the local terminal interface over the same Python service and protected SQLite state used by the MCP server and watcher. It does not subscribe to ModemManager D-Bus signals, so it can run alongside `sms-watch`; refreshes synchronise through the modem adapter and local store.
+
+```bash
+SMS_CLI_MODEM_ID=<modem-id> sms-tui
+```
+
+Keyboard: `Tab` and arrow keys move between controls; `r` refreshes the inbox; `q` quits. The Compose panel can safely read literal contact/template assignments from the normal `sms.conf`, but never sources or executes it. Contacts and templates can also be typed directly.
+
+Sending, replying, and package actions are prepared first. A final modal screen shows the exact recipient, SMS text, package price/conditions where recorded, and freshness/source information before dispatch. A successful dispatch remains `dispatched_pending_confirmation`; it is not recipient delivery, carrier reply, or package-activation confirmation. The credit-query control intentionally directs you to `sms-credit`, where the carrier-side USSD action remains explicit.
+
 ## Requirements
 
 - Linux with ModemManager running
@@ -63,16 +76,39 @@ sms-watch --modem <modem-id>
 
 ## Install
 
+`sms-cli` is not published on PyPI; `pipx install sms-cli` would install an unrelated package. For everyday use after a tagged GitHub release, install the exact release directly from this repository in an isolated user environment. This puts `sms`, `sms-credit`, `smscp`, `sms-watch`, and `sms-tui` on your `PATH` without modifying Fedora's system Python:
+
+```bash
+sudo dnf install pipx
+pipx ensurepath
+# Open a new terminal after ensurepath, then install the published tag:
+pipx install "git+https://github.com/avedelphina/sms-cli.git@v0.4.0"
+```
+
+Until v0.4.0 is published, install the current checkout with pipx for local everyday testing:
+
+```bash
+cd ~/Documents/sms-cli-repo
+pipx install --editable .
+```
+
+For development from a checkout, keep the project-local virtual environment:
+
 ```bash
 git clone https://github.com/avedelphina/sms-cli.git
 cd sms-cli
-mkdir -p ~/.local/bin ~/.config/sms-cli
-cp sms ~/.local/bin/sms
-cp sms.conf.example ~/.config/sms-cli/sms.conf
-chmod +x ~/.local/bin/sms
+python3 -m venv .venv
+.venv/bin/python -m pip install -e '.[test]'
 ```
 
-Edit `~/.config/sms-cli/sms.conf` to set the modem ID and, optionally, credit-query, contact, and template settings.
+Use the installed commands normally, or prefix them with `.venv/bin/` in the checkout. The legacy Bash `sms` wrapper still reads `~/.config/sms-cli/sms.conf`; the Python TUI only reads literal contact/template assignments from that file and never executes it.
+
+Set the current ModemManager ID explicitly for the Python commands. IDs can change after a modem restart:
+
+```bash
+mmcli -L
+export SMS_CLI_MODEM_ID=<modem-id>
+```
 
 To see detected modems:
 
