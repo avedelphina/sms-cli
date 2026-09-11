@@ -18,6 +18,7 @@ class CarrierProfileTests(unittest.TestCase):
 
         self.assertEqual(profile.credit_query().recipient, "4603")
         self.assertEqual(profile.credit_query().text, "KREDIT S")
+        self.assertEqual(profile.credit_ussd(), "*101#")
         self.assertEqual(profile.package_command("internet-na-rok", "activate").text, "IROK2 A")
         self.assertEqual(profile.package_command("internet-na-rok", "status").text, "IROK2 S")
         with self.assertRaisesRegex(ValueError, "refreshed"):

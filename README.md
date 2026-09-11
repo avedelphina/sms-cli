@@ -4,7 +4,20 @@ Version 0.1.0 — an early but tested baseline. See [CHANGELOG.md](CHANGELOG.md)
 
 A practical command-line SMS client for [ModemManager](https://modemmanager.org/).
 
-`sms-cli` is a small Bash wrapper around `mmcli`. It keeps ordinary cellular tasks close to hand: listing and reading stored SMS messages, sending a message, using message templates and named contacts, and querying prepaid credit by USSD or SMS.
+`sms-cli` is a local ModemManager toolkit. The original `sms` command is a small Bash wrapper around `mmcli`; the Python core is growing carrier-aware, testable commands alongside it. It keeps ordinary cellular tasks close to hand: listing and reading stored SMS messages, sending a message, using message templates and named contacts, querying prepaid credit, and (for supported carriers) safely describing prepaid data packages.
+
+The first carrier profile is T-Mobile Czech Republic Twist. See [Carrier profiles](docs/carrier-profiles.md) for dated package metadata and safety rules.
+
+## Development and test setup
+
+The repository's fresh-wheel integration test needs the `build` module. Create the project-local environment and install the test extra:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -e '.[test]'
+.venv/bin/python -m unittest discover -s tests -v
+```
 
 ## Requirements
 
@@ -47,6 +60,8 @@ sms templates
 sms contacts
 sms send-template <name> [number] [template_args...]
 sms credit-status
+sms-credit --modem <id> --dry-run
+sms-credit --modem <id>
 ```
 
 Examples:
@@ -60,6 +75,8 @@ sms reply 12 "On my way."
 sms send-template arrived
 sms send-template eta +420123456789 15
 sms credit-status
+sms-credit --modem 5 --dry-run
+sms-credit --modem 5
 ```
 
 ## Configuration
@@ -67,6 +84,12 @@ sms credit-status
 The default configuration path is `~/.config/sms-cli/sms.conf`. Override it for a particular invocation with `SMS_CONFIG=/path/to/file`.
 
 See [`sms.conf.example`](sms.conf.example) for all supported settings. The configuration file is sourced by Bash, so keep it private if it contains information you would not share.
+
+## Credit-query safety
+
+For T-Mobile CZ Twist, `sms-credit --modem <id>` loads the bundled carrier profile and submits its documented `*101#` USSD credit request. It does not send an SMS. Use `--dry-run` first to see the exact modem ID and USSD code; that mode has no modem side effect. A real USSD query contacts the carrier; `sms-cli` does not make a claim about carrier charging, so check your current tariff terms if that matters.
+
+The older `sms credit-status` command follows the local Bash configuration and can be configured to send an SMS. Prefer `sms-credit` for the T-Mobile Twist profile.
 
 ## Safety
 
