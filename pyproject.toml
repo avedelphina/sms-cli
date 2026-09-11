@@ -21,7 +21,7 @@ classifiers = [
   "Topic :: Communications :: Telephony",
 ]
 
-dependencies = ["mcp>=1.0,<2.0", "dbus-next>=0.2.3,<1.0"]
+dependencies = ["mcp>=1.0,<2.0", "dbus-next>=0.2.3,<1.0", "textual>=0.50,<2.0"]
 
 [project.optional-dependencies]
 test = ["build"]
@@ -31,6 +31,7 @@ sms = "sms_cli.cli:main"
 sms-credit = "sms_cli.credit_cli:main"
 smscp = "sms_cli.mcp_server:main"
 sms-watch = "sms_cli.watcher_cli:main"
+sms-tui = "sms_cli.tui:main"
 
 [tool.setuptools]
 packages = ["sms_cli", "sms_cli.resources", "sms_cli.resources.carriers"]

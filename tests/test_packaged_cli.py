@@ -66,6 +66,19 @@ class InstalledCliTests(unittest.TestCase):
                 capture_output=True,
                 check=False,
             )
+            tui_entry_point = subprocess.run(
+                [
+                    environment / "bin" / "python",
+                    "-c",
+                    "from importlib.metadata import entry_points; "
+                    "print(any(entry.name == 'sms-tui' and entry.value == 'sms_cli.tui:main' "
+                    "for entry in entry_points(group='console_scripts')))",
+                ],
+                cwd=temp,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
             watcher_entry_point = subprocess.run(
                 [
                     environment / "bin" / "sms-watch",
@@ -129,6 +142,8 @@ class InstalledCliTests(unittest.TestCase):
         self.assertIn('"id": "tmobile-cz-twist"', profile.stdout)
         self.assertEqual(mcp_entry_point.returncode, 0, mcp_entry_point.stderr)
         self.assertEqual(mcp_entry_point.stdout.strip(), "True")
+        self.assertEqual(tui_entry_point.returncode, 0, tui_entry_point.stderr)
+        self.assertEqual(tui_entry_point.stdout.strip(), "True")
         self.assertEqual(watcher_entry_point.returncode, 0, watcher_entry_point.stderr)
         self.assertIn("DRY RUN", watcher_entry_point.stdout)
         self.assertEqual(dry_run.returncode, 0, dry_run.stderr)
