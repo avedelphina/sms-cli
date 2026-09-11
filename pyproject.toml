@@ -21,12 +21,15 @@ classifiers = [
   "Topic :: Communications :: Telephony",
 ]
 
+dependencies = ["mcp>=1.0,<2.0"]
+
 [project.optional-dependencies]
 test = ["build"]
 
 [project.scripts]
 sms = "sms_cli.cli:main"
 sms-credit = "sms_cli.credit_cli:main"
+smscp = "sms_cli.mcp_server:main"
 
 [tool.setuptools]
 packages = ["sms_cli", "sms_cli.resources", "sms_cli.resources.carriers"]

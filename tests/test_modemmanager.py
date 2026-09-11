@@ -21,6 +21,59 @@ class ModemManagerAdapterTests(unittest.TestCase):
         self.assertTrue(calls[0][1]["check"])
         self.assertTrue(calls[0][1]["text"])
 
+    def test_list_messages_and_send_message_use_mmcli(self):
+        calls = []
+
+        def runner(arguments, **kwargs):
+            calls.append((arguments, kwargs))
+            if "--messaging-list-sms" in arguments:
+                return subprocess.CompletedProcess(
+                    arguments,
+                    0,
+                    "  /org/freedesktop/ModemManager1/SMS/42 (received)\n",
+                    "",
+                )
+            if arguments[1] == "-s":
+                return subprocess.CompletedProcess(
+                    arguments,
+                    0,
+                    "  -------------------------\n  content: 'Hello'\n  number: '+420123456789'\n  state: 'received'\n",
+                    "",
+                )
+            if "--messaging-create-sms=number='+420123456789',text='ETA 18:30'" in arguments:
+                return subprocess.CompletedProcess(
+                    arguments, 0, "/org/freedesktop/ModemManager1/SMS/43\n", ""
+                )
+            return subprocess.CompletedProcess(arguments, 0, "", "")
+
+        adapter = ModemManagerAdapter("5", runner=runner)
+
+        received = adapter.list_messages()
+        sent = adapter.send_message("+420123456789", "ETA 18:30")
+
+        self.assertEqual(received[0].text, "Hello")
+        self.assertEqual(received[0].number, "+420123456789")
+        self.assertEqual(sent.state, "sent")
+        self.assertEqual(calls[-1][0], ["mmcli", "-s", "/org/freedesktop/ModemManager1/SMS/43", "--send"])
+
+    def test_list_messages_preserves_unknown_state_without_calling_it_sent(self):
+        def runner(arguments, **kwargs):
+            if "--messaging-list-sms" in arguments:
+                return subprocess.CompletedProcess(
+                    arguments, 0, "/org/freedesktop/ModemManager1/SMS/42\n", ""
+                )
+            return subprocess.CompletedProcess(
+                arguments,
+                0,
+                "  content: 'Waiting'\n  number: '+420123456789'\n  state: 'mystery'\n",
+                "",
+            )
+
+        message = ModemManagerAdapter("5", runner=runner).list_messages()[0]
+
+        self.assertEqual(message.direction.value, "unknown")
+        self.assertEqual(message.state, "mystery")
+
     def test_initiate_ussd_surfaces_mmcli_failures(self):
         def runner(arguments, **kwargs):
             raise subprocess.CalledProcessError(1, arguments, "", "modem unavailable")
