@@ -56,6 +56,27 @@ class ModemManagerAdapterTests(unittest.TestCase):
         self.assertEqual(sent.state, "sent")
         self.assertEqual(calls[-1][0], ["mmcli", "-s", "/org/freedesktop/ModemManager1/SMS/43", "--send"])
 
+    def test_read_message_uses_a_validated_sms_path(self):
+        calls = []
+
+        def runner(arguments, **kwargs):
+            calls.append(arguments)
+            return subprocess.CompletedProcess(
+                arguments,
+                0,
+                "  content: 'Hello'\n  number: '+420123456789'\n  state: 'received'\n",
+                "",
+            )
+
+        message = ModemManagerAdapter("5", runner=runner).read_message(
+            "/org/freedesktop/ModemManager1/SMS/42"
+        )
+
+        self.assertEqual(message.text, "Hello")
+        self.assertEqual(calls, [["mmcli", "-s", "/org/freedesktop/ModemManager1/SMS/42"]])
+        with self.assertRaisesRegex(ValueError, "SMS path"):
+            ModemManagerAdapter("5", runner=runner).read_message("/tmp/other")
+
     def test_list_messages_preserves_unknown_state_without_calling_it_sent(self):
         def runner(arguments, **kwargs):
             if "--messaging-list-sms" in arguments:

@@ -41,6 +41,11 @@ class ModemManagerAdapter:
             messages.append(_parse_message(path, details))
         return messages
 
+    def read_message(self, sms_path: str) -> Message:
+        if not _SMS_PATH.fullmatch(sms_path):
+            raise ValueError("SMS path must be a ModemManager SMS object path")
+        return _parse_message(sms_path, self._run(["mmcli", "-s", sms_path]))
+
     def send_message(self, number: str, text: str) -> Message:
         if not isinstance(number, str) or not number or "\n" in number or "\r" in number:
             raise ValueError("recipient number must be a non-empty single-line string")
