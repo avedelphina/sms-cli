@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "tmobile-cz-twist",
+  "name": "T-Mobile Czech Republic Twist",
+  "country": "CZ",
+  "documentation_url": "https://www.t-mobile.cz/podpora/prvni-pomoc/nastavte-si-sami/sms-kody-zakaznici-s-predplacenou-kartou-twist",
+  "commands": {
+    "credit": {
+      "recipient": "4603",
+      "text": "KREDIT S",
+      "alternative_ussd": "*101#",
+      "source_url": "https://www.t-mobile.cz/podpora/caste-dotazy/-/refId/faq-960bc32756b8f137c374d910fde19e19",
+      "observed_at": "2026-09-11"
+    }
+  },
+  "packages": [
+    {
+      "id": "internet-na-rok",
+      "name": "Internet na rok",
+      "recipient": "4603",
+      "commands": {
+        "activate": "IROK2 A",
+        "deactivate": "IROK2 D",
+        "status": "IROK2 S",
+        "help": "IROK2 H"
+      },
+      "allowance": "2 GB per 30-day period for 12 periods",
+      "duration": "360 days",
+      "price": {
+        "currency": "CZK",
+        "promotional_amount": 699,
+        "regular_amount": 1398,
+        "valid_until": "2026-09-30"
+      },
+      "source_url": "https://eshop.t-mobile.cz/predplacene-karty",
+      "observed_at": "2026-09-11"
+    },
+    {
+      "id": "neomezeny-internet-na-den",
+      "name": "Neomezený internet v mobilu na den – TWIST",
+      "recipient": "4603",
+      "commands": {
+        "activate": "NIDEN A",
+        "status": "NIDEN S",
+        "help": "NIDEN H"
+      },
+      "allowance": "Unlimited data in Czech Republic for 24 hours",
+      "duration": "24 hours",
+      "price": null,
+      "source_url": "https://www.t-mobile.cz/podpora/prvni-pomoc/nastavte-si-sami/sms-kody-zakaznici-s-predplacenou-kartou-twist",
+      "observed_at": "2026-09-11",
+      "notes": "The official SMS-code table confirms activation and status codes. Price and conditions must be refreshed before any purchase preview; no deactivation code is published."
+    }
+  ],
+  "response_policy": {
+    "retain_raw_messages": true,
+    "activation_requires_carrier_confirmation": true
+  }
+}

@@ -25,7 +25,8 @@ classifiers = [
 sms = "sms_cli.cli:main"
 
 [tool.setuptools]
-packages = ["sms_cli", "sms_cli.resources"]
+packages = ["sms_cli", "sms_cli.resources", "sms_cli.resources.carriers"]
 
 [tool.setuptools.package-data]
 "sms_cli.resources" = ["sms"]
+"sms_cli.resources.carriers" = ["*.json"]
