@@ -1,5 +1,7 @@
 # sms-cli
 
+Version 0.1.0 — an early but tested baseline. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+
 A practical command-line SMS client for [ModemManager](https://modemmanager.org/).
 
 `sms-cli` is a small Bash wrapper around `mmcli`. It keeps ordinary cellular tasks close to hand: listing and reading stored SMS messages, sending a message, using message templates and named contacts, and querying prepaid credit by USSD or SMS.

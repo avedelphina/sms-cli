@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sms-cli"
+version = "0.1.0"
+description = "A local ModemManager SMS and prepaid-data management toolkit"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+  {name = "Tom Frost"},
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Communications :: Telephony",
+]
+
+[project.scripts]
+sms = "sms_cli.cli:main"
+
+[tool.setuptools]
+packages = ["sms_cli", "sms_cli.resources"]
+
+[tool.setuptools.package-data]
+"sms_cli.resources" = ["sms"]
