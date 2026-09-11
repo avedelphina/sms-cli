@@ -1,0 +1,12 @@
+# Local configuration and secrets
+sms.conf
+
+# Test and Python tooling
+__pycache__/
+.pytest_cache/
+
+# Editor and OS files
+.vscode/
+.idea/
+*~
+.DS_Store

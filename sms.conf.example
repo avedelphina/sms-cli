@@ -1,0 +1,31 @@
+# Copy to ~/.config/sms-cli/sms.conf
+# mkdir -p ~/.config/sms-cli
+# cp /home/avedelphina/Documents/sms-cli/sms.conf.example ~/.config/sms-cli/sms.conf
+
+# ModemManager modem ID (from: mmcli -L)
+MODEM_ID=3
+
+# Credit query method: "ussd" or "sms"
+CREDIT_METHOD="sms"
+
+# USSD code for credit/balance query (used when CREDIT_METHOD="ussd")
+CREDIT_USSD="*100#"
+
+# SMS credit query settings (used when CREDIT_METHOD="sms")
+CREDIT_SMS_NUMBER="4603"
+CREDIT_SMS_TEXT="KREDIT S"
+
+# Predefined messages
+# Use: sms send-template <name> [number] [template_args...]
+declare -A SMS_TEMPLATES=(
+  [arrived]="I arrived safely."
+  [running_late]="I am running about 10 minutes late."
+  [call_me]="Please call me when you can."
+  [eta]="I will arrive in about {1} minutes."
+)
+
+# Optional named contacts
+# Use: sms send-template <name> (without number if contact exists)
+declare -A SMS_CONTACTS=(
+  [arrived]="+420608336333"
+)
