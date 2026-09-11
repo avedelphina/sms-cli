@@ -39,6 +39,22 @@ mcp_servers:
 
 The server exposes read-only modem/message/package tools plus `prepare_send_sms` → `confirm_send_sms` and `prepare_package_action` → `confirm_package_action`. Preparation does not contact the modem or carrier. Confirmation consumes a short-lived, payload-bound local token and dispatches one SMS. A dispatch result is deliberately `dispatched_pending_confirmation`: it does not mean the recipient received it or the carrier activated a package. The first MCP slice does not yet watch or correlate carrier replies.
 
+## Incoming SMS notifications
+
+`sms-watch` listens to ModemManager's system D-Bus `Messaging.Added` signal for one explicit modem. It does not poll, forward SMS content, or send any message. On a network-received SMS it re-reads the SMS properties, accepts only the complete `received` state, stores it in the owner-only local database, then sends a local desktop notification. Existing message paths are deduplicated across restarts.
+
+Validate the selected modem without subscribing:
+
+```bash
+sms-watch --modem <modem-id> --dry-run
+```
+
+Starting the watcher is intentionally a separate, long-running local operation:
+
+```bash
+sms-watch --modem <modem-id>
+```
+
 ## Requirements
 
 - Linux with ModemManager running

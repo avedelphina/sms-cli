@@ -66,6 +66,18 @@ class InstalledCliTests(unittest.TestCase):
                 capture_output=True,
                 check=False,
             )
+            watcher_entry_point = subprocess.run(
+                [
+                    environment / "bin" / "sms-watch",
+                    "--modem",
+                    "5",
+                    "--dry-run",
+                ],
+                cwd=temp,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
             fake_bin = temp / "fake-bin"
             fake_bin.mkdir()
             mmcli_log = temp / "mmcli.log"
@@ -117,6 +129,8 @@ class InstalledCliTests(unittest.TestCase):
         self.assertIn('"id": "tmobile-cz-twist"', profile.stdout)
         self.assertEqual(mcp_entry_point.returncode, 0, mcp_entry_point.stderr)
         self.assertEqual(mcp_entry_point.stdout.strip(), "True")
+        self.assertEqual(watcher_entry_point.returncode, 0, watcher_entry_point.stderr)
+        self.assertIn("DRY RUN", watcher_entry_point.stdout)
         self.assertEqual(dry_run.returncode, 0, dry_run.stderr)
         self.assertIn("DRY RUN", dry_run.stdout)
         self.assertEqual(invalid_option.returncode, 1)
