@@ -19,6 +19,26 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
+## MCP server
+
+`smscp` is a local stdio [Model Context Protocol](https://modelcontextprotocol.io/) server. It has no Hermes dependency and can be used by any MCP client. It uses the T-Mobile Twist profile and ModemManager; select the modem explicitly with `SMS_CLI_MODEM_ID`. Its persistent local SMS/action state is stored under `$XDG_STATE_HOME/sms-cli/` or `~/.local/state/sms-cli/`. Those state files contain SMS contents and short-lived confirmation tokens, so the server requires owner-only directory (`0700`) and database (`0600`) permissions.
+
+```bash
+SMS_CLI_MODEM_ID=<modem-id> smscp
+```
+
+For Hermes, add the equivalent local process through its MCP configuration tooling (do not put credentials in the config):
+
+```yaml
+mcp_servers:
+  sms_cli:
+    command: "/path/to/sms-cli/.venv/bin/smscp"
+    env:
+      SMS_CLI_MODEM_ID: "<modem-id>"
+```
+
+The server exposes read-only modem/message/package tools plus `prepare_send_sms` → `confirm_send_sms` and `prepare_package_action` → `confirm_package_action`. Preparation does not contact the modem or carrier. Confirmation consumes a short-lived, payload-bound local token and dispatches one SMS. A dispatch result is deliberately `dispatched_pending_confirmation`: it does not mean the recipient received it or the carrier activated a package. The first MCP slice does not yet watch or correlate carrier replies.
+
 ## Requirements
 
 - Linux with ModemManager running

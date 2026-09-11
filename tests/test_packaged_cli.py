@@ -53,6 +53,19 @@ class InstalledCliTests(unittest.TestCase):
                 capture_output=True,
                 check=False,
             )
+            mcp_entry_point = subprocess.run(
+                [
+                    environment / "bin" / "python",
+                    "-c",
+                    "from importlib.metadata import entry_points; "
+                    "print(any(entry.name == 'smscp' and entry.value == 'sms_cli.mcp_server:main' "
+                    "for entry in entry_points(group='console_scripts')))",
+                ],
+                cwd=temp,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
             fake_bin = temp / "fake-bin"
             fake_bin.mkdir()
             mmcli_log = temp / "mmcli.log"
@@ -102,6 +115,8 @@ class InstalledCliTests(unittest.TestCase):
         self.assertIn("Config file:", result.stdout)
         self.assertEqual(profile.returncode, 0, profile.stderr)
         self.assertIn('"id": "tmobile-cz-twist"', profile.stdout)
+        self.assertEqual(mcp_entry_point.returncode, 0, mcp_entry_point.stderr)
+        self.assertEqual(mcp_entry_point.stdout.strip(), "True")
         self.assertEqual(dry_run.returncode, 0, dry_run.stderr)
         self.assertIn("DRY RUN", dry_run.stdout)
         self.assertEqual(invalid_option.returncode, 1)

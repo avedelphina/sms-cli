@@ -1,7 +1,9 @@
 import hashlib
 import json
+import os
 import secrets
 import sqlite3
+import stat
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -10,8 +12,20 @@ from .models import Message, MessageDirection, PreparedAction
 
 class MessageStore:
     def __init__(self, database_path: Path):
-        database_path.parent.mkdir(parents=True, exist_ok=True)
+        database_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        _require_owner_only(database_path.parent, "state directory")
+        database_exists = database_path.exists()
+        if database_exists:
+            _require_owner_only(database_path, "state database")
+        else:
+            descriptor = os.open(
+                database_path,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                0o600,
+            )
+            os.close(descriptor)
         self.connection = sqlite3.connect(database_path)
+        _require_owner_only(database_path, "state database")
         self.connection.row_factory = sqlite3.Row
         self._migrate()
 
@@ -94,6 +108,24 @@ class MessageStore:
         self.connection.commit()
         return PreparedAction(cursor.lastrowid, token, kind, payload, expires_at)
 
+    def get_prepared_action(self, token: str) -> PreparedAction:
+        row = self.connection.execute(
+            "SELECT * FROM prepared_actions WHERE token = ?", (token,)
+        ).fetchone()
+        if row is None:
+            raise ValueError("unknown confirmation token")
+        expires_at = _parse_datetime(row["expires_at"])
+        if expires_at is None:
+            raise RuntimeError("prepared action has no expiry")
+        return PreparedAction(
+            row["id"],
+            row["token"],
+            row["kind"],
+            json.loads(row["payload_json"]),
+            expires_at,
+            _parse_datetime(row["consumed_at"]),
+        )
+
     def consume_prepared_action(
         self, token: str, payload: dict[str, str], now: datetime | None = None
     ) -> PreparedAction:
@@ -133,6 +165,12 @@ class MessageStore:
             _parse_datetime(row["expires_at"]),
             _parse_datetime(now_text),
         )
+
+
+def _require_owner_only(path: Path, description: str) -> None:
+    mode = stat.S_IMODE(path.stat().st_mode)
+    if mode & 0o077:
+        raise ValueError(f"{description} must be owner-only (expected mode 0700 or 0600)")
 
 
 def _canonical_payload(payload: dict[str, str]) -> str:

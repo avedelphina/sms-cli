@@ -6,6 +6,7 @@ from enum import StrEnum
 class MessageDirection(StrEnum):
     RECEIVED = "received"
     SENT = "sent"
+    UNKNOWN = "unknown"
 
 
 @dataclass(frozen=True)

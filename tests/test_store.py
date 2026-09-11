@@ -1,3 +1,5 @@
+import os
+import stat
 import tempfile
 import unittest
 from datetime import UTC, datetime, timedelta
@@ -15,6 +17,24 @@ class MessageStoreTests(unittest.TestCase):
     def tearDown(self):
         self.store.close()
         self.temp_dir.cleanup()
+
+    def test_state_path_is_owner_only(self):
+        state_dir = Path(self.temp_dir.name) / "private-state"
+        database = state_dir / "state.sqlite3"
+        store = MessageStore(database)
+        try:
+            self.assertEqual(stat.S_IMODE(state_dir.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(database.stat().st_mode), 0o600)
+        finally:
+            store.close()
+
+    def test_insecure_existing_state_path_is_rejected(self):
+        state_dir = Path(self.temp_dir.name) / "insecure-state"
+        state_dir.mkdir(mode=0o755)
+        os.chmod(state_dir, 0o755)
+
+        with self.assertRaisesRegex(ValueError, "owner-only"):
+            MessageStore(state_dir / "state.sqlite3")
 
     def test_upsert_received_message_is_idempotent(self):
         message = Message(
